@@ -32,22 +32,34 @@ namespace WifiAnalyzer
 {
 	public class Program
 	{
+		private static ConsoleColor defaultColor = Console.ForegroundColor;
+		private static ConsoleColor highlightColor = ConsoleColor.Cyan;
+		private static ConsoleColor errorColor = ConsoleColor.Red;
+		private static ConsoleColor indexColor = ConsoleColor.DarkGray;
+
+		private static ConsoleColor color1 = ConsoleColor.Green;
+		private static ConsoleColor color2 = ConsoleColor.DarkGreen;
+		private static ConsoleColor color3 = ConsoleColor.Magenta;
+		private static ConsoleColor color4 = ConsoleColor.Red;
+		private static ConsoleColor color5 = ConsoleColor.DarkRed;
+
 		public static void Main( string[] args )
 		{
 			WlanClient client = new WlanClient();
 			bool exit = false;
-			int timeout = 250;
+			int timeout = 500;
 			int ethIndex = 0;
-
-			ConsoleColor defaultColor = Console.ForegroundColor;
-			ConsoleColor highlightColor = ConsoleColor.Cyan;
+			int netIndex = 0;
 
 			List<Wlan.WlanBssEntry> wlanBssEntries = new List<Wlan.WlanBssEntry>();
 			ConsoleKeyInfo keyPressed = new ConsoleKeyInfo();
 			Dictionary<int, string> ethNames = new Dictionary<int, string>();
 
+			ethIndex = 0;
 			foreach (WlanClient.WlanInterface wlanIface in client.Interfaces) {
-				ethNames.Add(0, wlanIface.InterfaceName);
+				// I store the interface name here because it is pretty slow (>500ms) to retrieve it..
+				// Hopefully, the indexes won't change...
+				ethNames.Add(ethIndex++, wlanIface.InterfaceName);
 			}
 
 			try {
@@ -55,14 +67,11 @@ namespace WifiAnalyzer
 					Thread.Sleep(timeout);
 
 					Console.Clear();
-					wlanBssEntries.Clear();
 					ethIndex = 0;
 
-					Console.WriteLine("Signal Strength Analyzer. Copyright (C) 2013 Kody Brown.");
-					Console.WriteLine("This software is in the public domain, without warranty.");
-					Console.WriteLine();
-					Console.WriteLine("Last update: {0}", DateTime.Now.ToString("hh:mm:ss"));
-					Console.WriteLine("Press [Space] to pause or [Escape] to quit.");
+					Console.WriteLine("wifian - WiFi Signal Strength Analyzer. Copyright (C) 2013 Kody Brown.");
+					Console.WriteLine("See github.com/kodybrown/wifian for (MIT) licensing details.");
+					Console.Write("{0," + (Console.WindowWidth - 2) + "}", string.Format("Last update: {0}", DateTime.Now.ToString("hh:mm:ss")));
 
 					foreach (WlanClient.WlanInterface wlanIface in client.Interfaces) {
 						Console.ForegroundColor = highlightColor;
@@ -71,6 +80,7 @@ namespace WifiAnalyzer
 						ethIndex++;
 						Console.ForegroundColor = defaultColor;
 
+						wlanBssEntries.Clear();
 						wlanBssEntries.AddRange(wlanIface.GetNetworkBssList());
 
 						wlanBssEntries.Sort(delegate( Wlan.WlanBssEntry a, Wlan.WlanBssEntry b )
@@ -79,8 +89,9 @@ namespace WifiAnalyzer
 								ASCIIEncoding.ASCII.GetString(b.dot11Ssid.SSID), StringComparison.InvariantCultureIgnoreCase);
 						});
 
+						netIndex = 0;
 						foreach (Wlan.WlanBssEntry network in wlanBssEntries) {
-							WriteNetwork(network);
+							WriteNetwork(++netIndex, network);
 						}
 
 						if (Console.KeyAvailable) {
@@ -96,19 +107,23 @@ namespace WifiAnalyzer
 						break;
 					}
 					if (keyPressed.Key == ConsoleKey.P || keyPressed.Key == ConsoleKey.Spacebar) {
-						Console.WriteLine("\nPAUSED: Press any key to continue");
+						Console.Write("\nPAUSED: Press any key to continue");
 						keyPressed = Console.ReadKey(true);
 						if (keyPressed.Key == ConsoleKey.Q || keyPressed.Key == ConsoleKey.Escape) {
 							exit = true;
 							break;
 						}
 						keyPressed = new ConsoleKeyInfo();
+					} else {
+						Console.WriteLine("\nPress [Space] to pause or [Escape] to quit.");
 					}
 				}
 
 			} catch (Exception ex) {
+				Console.ForegroundColor = errorColor;
 				Console.WriteLine(ex.Message);
 				Console.WriteLine(ex.StackTrace);
+				Console.WriteLine("\nPlease copy and send this error to kody@bricksoft.com! Thank you!");
 				Console.WriteLine("Press any key to exit");
 				Console.ReadKey(true);
 			}
@@ -116,12 +131,12 @@ namespace WifiAnalyzer
 			Console.ForegroundColor = defaultColor;
 		}
 
-		private static void WriteNetwork( Wlan.WlanBssEntry network )
+		private static void WriteNetwork( int netIndex, Wlan.WlanBssEntry network )
 		{
-			int mzxSsidLen = 22;
+			int mzxSsidLen = 25;
 			int barLength = 25;
-			string format = "  [{0,-" + mzxSsidLen + "}][Signal:{1,-3:###}dBm][{2}]{3}%";
 			string ssidName = ASCIIEncoding.ASCII.GetString(network.dot11Ssid.SSID).Trim('\0');
+			string bar = CreateBar(network, barLength);
 
 			if (ssidName.Length > mzxSsidLen) {
 				ssidName = ssidName.Substring(0, mzxSsidLen).Trim();
@@ -129,7 +144,27 @@ namespace WifiAnalyzer
 				ssidName = "<unknown/hidden>";
 			}
 
-			Console.WriteLine(format, ssidName, network.rssi, CreateBar(network, barLength), network.linkQuality);
+			Console.ForegroundColor = indexColor;
+			Console.Write("{0,-3}", netIndex);
+			Console.ForegroundColor = defaultColor;
+			Console.Write(" {0,-" + mzxSsidLen + "}|Signal: {1,4:###} dBm |", ssidName, network.rssi);
+
+			if (network.linkQuality > 90) {
+				Console.ForegroundColor = color1;
+			} else if (network.linkQuality > 80) {
+				Console.ForegroundColor = color2;
+			} else if (network.linkQuality > 60) {
+				Console.ForegroundColor = color3;
+			} else if (network.linkQuality > 30) {
+				Console.ForegroundColor = color4;
+			} else {
+				Console.ForegroundColor = color5;
+			}
+
+			Console.Write(bar);
+
+			Console.ForegroundColor = defaultColor;
+			Console.WriteLine(" {0,3}%", network.linkQuality);
 		}
 
 		private static string CreateBar( Wlan.WlanBssEntry network, int barLength )
@@ -137,11 +172,8 @@ namespace WifiAnalyzer
 			float barWidth = (float)barLength / 100;
 			uint linkQuality = network.linkQuality;
 			int barValue = (int)(linkQuality * barWidth);
-
-			// max == 50
-
-			// '▄' '▐' '█'
-			return string.Format("{0}{1}", new string('█', barValue), new string(' ', barLength - barValue));
+			// '▄' '▀' '▐' '█'
+			return string.Format("{0}{1}", new string('▄', barValue), new string(' ', barLength - barValue));
 		}
 	}
 }

@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Wifi-Analyzer")]
-[assembly: AssemblyCopyright("Copyright © 2013 Kody Brown")]
+[assembly: AssemblyCopyright("Copyright © 2013 Kody Brown (kody@bricksoft.com)")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
