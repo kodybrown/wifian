@@ -70,7 +70,7 @@ namespace WifiAnalyzer
 					ethIndex = 0;
 
 					Console.WriteLine("wifian - WiFi Signal Strength Analyzer. Copyright (C) 2013 Kody Brown.");
-					Console.WriteLine("See github.com/kodybrown/wifian for (MIT) licensing details.");
+					Console.WriteLine("See github.com/kodybrown/wifian for licensing details (MIT License).");
 					Console.Write("{0," + (Console.WindowWidth - 2) + "}", string.Format("Last update: {0}", DateTime.Now.ToString("hh:mm:ss")));
 
 					foreach (WlanClient.WlanInterface wlanIface in client.Interfaces) {
