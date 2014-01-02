@@ -59,7 +59,9 @@ namespace WifiAnalyzer
 			foreach (WlanClient.WlanInterface wlanIface in client.Interfaces) {
 				// I store the interface name here because it is pretty slow (>500ms) to retrieve it..
 				// Hopefully, the indexes won't change...
-				ethNames.Add(ethIndex++, wlanIface.InterfaceName);
+				if (wlanIface != null && wlanIface.InterfaceName != null) {
+					ethNames.Add(ethIndex++, wlanIface.InterfaceName);
+				}
 			}
 
 			try {
@@ -73,7 +75,8 @@ namespace WifiAnalyzer
 					Console.WriteLine("See github.com/kodybrown/wifian for licensing details (MIT License).");
 					Console.Write("{0," + (Console.WindowWidth - 2) + "}", string.Format("Last update: {0}", DateTime.Now.ToString("hh:mm:ss")));
 
-					foreach (WlanClient.WlanInterface wlanIface in client.Interfaces) {
+					//foreach (WlanClient.WlanInterface wlanIface in client.Interfaces) {
+					for (ethIndex = 0; ethIndex < client.Interfaces.Length; ethIndex++) {
 						Console.ForegroundColor = highlightColor;
 						Console.WriteLine("\neth" + ethIndex + " \"" + ethNames[ethIndex] + "\":");
 						//Console.WriteLine(wlanIface.InterfaceName + ":");

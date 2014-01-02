@@ -598,7 +598,7 @@ namespace NativeWifi
 			/// </summary>
 			public string InterfaceName
 			{
-				get { return NetworkInterface.Name; }
+				get { return NetworkInterface != null ? NetworkInterface.Name : null; }
 			}
 		}
 
