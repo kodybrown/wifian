@@ -82,7 +82,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>if exist "C:\Kody\Root" xcopy "$(TargetPath)" "C:\Kody\Root" /y
+    <PostBuildEvent>if exist "%25Bin%25" xcopy "$(TargetPath)" "%25Bin%25" /y
 </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
