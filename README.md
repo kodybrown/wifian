@@ -21,9 +21,11 @@ You can download the compiled executable from my dropbox here:
 * [wifian(.net3.5)][3]
 * [wifian(.net4.0)][4]
 * [wifian(.net4.5)][5]
+* [wifian(.net4.6)][6]
 
-[1]: http://kodybrown.com/url/1E        "wifian(.net2.0)"
-[2]: http://kodybrown.com/url/1F        "wifian(.net3.0)"
-[3]: http://kodybrown.com/url/1G        "wifian(.net3.5)"
-[4]: http://kodybrown.com/url/1H        "wifian(.net4.0)"
-[5]: http://kodybrown.com/url/1I        "wifian(.net4.5)"
+[1]: https://dl.dropboxusercontent.com/u/123747/Downloads/wifian%28.net20%29.exe        "wifian(.net2.0)"
+[2]: https://dl.dropboxusercontent.com/u/123747/Downloads/wifian%28.net30%29.exe        "wifian(.net3.0)"
+[3]: https://dl.dropboxusercontent.com/u/123747/Downloads/wifian%28.net35%29.exe        "wifian(.net3.5)"
+[4]: https://dl.dropboxusercontent.com/u/123747/Downloads/wifian%28.net40%29.exe        "wifian(.net4.0)"
+[5]: https://dl.dropboxusercontent.com/u/123747/Downloads/wifian%28.net45%29.exe        "wifian(.net4.5)"
+[5]: https://dl.dropboxusercontent.com/u/123747/Downloads/wifian%28.net46%29.exe        "wifian(.net4.6)"

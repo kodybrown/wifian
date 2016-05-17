@@ -1,18 +1,18 @@
 //
 // Copyright (C) 2013 Kody Brown (kody@bricksoft.com).
-// 
+//
 // MIT License:
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
 // deal in the Software without restriction, including without limitation the
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -59,6 +59,8 @@ namespace WifiAnalyzer
 			int ethIndex = 0;
 			int netIndex = 0;
 
+			int curTop = Console.CursorTop;
+
 			SortBy sortBy = SortBy.Name;
 			bool shift = false;
 			int sortModifier = -1;
@@ -68,7 +70,7 @@ namespace WifiAnalyzer
 			Dictionary<int, string> ethNames = new Dictionary<int, string>();
 
 			// '┼' '─'
-			string captionSeparator = string.Format("────{0,-" + colSsid + "}─┼─{1,-" + colSignal + "}─┼─{2}──────"
+			string captionSeparator = string.Format("────{0,-" + colSsid + "}─┼─{1,-" + colSignal + "}─┼─{2}─────"
 				, new string('─', colSsid), new string('─', colSignal), new string('─', colBarLen));
 
 			ethIndex = 0;
@@ -81,15 +83,24 @@ namespace WifiAnalyzer
 			}
 
 			try {
+				Console.CursorVisible = false;
+
+				int lineCount = 0;
+				int lastLineCount = 0;
+
 				while (true) {
+					Console.SetCursorPosition(0, curTop);
+
 					Thread.Sleep(timeout);
 
-					Console.Clear();
+					//Console.Clear();
 					ethIndex = 0;
 
 					Console.WriteLine("wifian - WiFi Signal Strength Analyzer. Copyright (C) 2013 Kody Brown.");
 					Console.WriteLine("See github.com/kodybrown/wifian for licensing details (MIT License).");
-					Console.Write("{0," + (Console.WindowWidth - 2) + "}", string.Format("Last update: {0}", DateTime.Now.ToString("hh:mm:ss")));
+					Console.WriteLine();
+					Console.Write("{0," + (75 - 2) + "}", string.Format("Last update: {0}", DateTime.Now.ToString("hh:mm:ss")));
+					lineCount = 4;
 
 					//foreach (WlanClient.WlanInterface wlanIface in client.Interfaces) {
 					for (ethIndex = 0; ethIndex < client.Interfaces.Length; ethIndex++) {
@@ -122,6 +133,7 @@ namespace WifiAnalyzer
 						netIndex = 0;
 						foreach (Wlan.WlanBssEntry network in wlanBssEntries) {
 							WriteNetwork(++netIndex, network);
+							lineCount++;
 						}
 
 						if (Console.KeyAvailable) {
@@ -132,6 +144,23 @@ namespace WifiAnalyzer
 							}
 						}
 					}
+
+					if (Console.KeyAvailable) {
+						keyPressed = Console.ReadKey(true);
+						if (keyPressed.Key == ConsoleKey.Q || keyPressed.Key == ConsoleKey.Escape) {
+							exit = true;
+							break;
+						}
+					}
+
+					if (lineCount < lastLineCount) {
+						int curTempTop = Console.CursorTop;
+						for (int i = lineCount; i < lastLineCount; i++) {
+							Console.WriteLine("                                                                          ");
+						}
+						Console.SetCursorPosition(0, curTempTop);
+					}
+					lastLineCount = lineCount + 2;
 
 					if (exit) {
 						break;
@@ -156,7 +185,7 @@ namespace WifiAnalyzer
 						sortBy = SortBy.Signal;
 						keyPressed = new ConsoleKeyInfo();
 					} else if (keyPressed.Key == ConsoleKey.P || keyPressed.Key == ConsoleKey.Spacebar) {
-						Console.Write("\nPAUSED: Press any key to continue");
+						Console.Write("\nPAUSED: Press any key to continue                    ");
 						keyPressed = Console.ReadKey(true);
 						if (keyPressed.Key == ConsoleKey.Q || keyPressed.Key == ConsoleKey.Escape) {
 							exit = true;
@@ -165,7 +194,7 @@ namespace WifiAnalyzer
 						keyPressed = new ConsoleKeyInfo();
 					} else {
 						//Console.WriteLine("\nPress [S] to change sort and [R] to reverse.");
-						Console.WriteLine("\nPress [Space] to pause or [Escape] to quit.");
+						Console.WriteLine("\nPress [Space] to pause or [Escape] to quit.            ");
 					}
 				}
 
@@ -173,9 +202,12 @@ namespace WifiAnalyzer
 				Console.ForegroundColor = errorColor;
 				Console.WriteLine(ex.Message);
 				Console.WriteLine(ex.StackTrace);
-				Console.WriteLine("\nPlease copy and send this error to kody@bricksoft.com! Thank you!");
+				Console.WriteLine("\n\nPlease copy and send this error to kody@bricksoft.com! Thank you!");
 				Console.WriteLine("Press any key to exit");
 				Console.ReadKey(true);
+
+			} finally {
+				Console.CursorVisible = true;
 			}
 
 			Console.ForegroundColor = defaultColor;
